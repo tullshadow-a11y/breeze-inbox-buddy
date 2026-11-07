@@ -130,8 +130,9 @@ function MailApp() {
     const ids = new Set(mail.messages.map((m) => m.id));
     if (known.current) {
       const fresh = mail.messages.filter((m) => !known.current!.has(m.id));
-      if (fresh.length === 1) {
-        toast(`New message from ${senderName(fresh[0].from)}`, { description: fresh[0].subject });
+      const first = fresh[0];
+      if (fresh.length === 1 && first) {
+        toast(`New message from ${senderName(first.from)}`, { description: first.subject });
       } else if (fresh.length > 1) {
         toast(`${fresh.length} new messages`);
       }
