@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+
+- Temporary inboxes come from the public Guerrilla Mail API, called directly from the browser (`src/lib/tempmail.ts`): it allows any origin and keeps rate limits per visitor instead of on one shared server IP.
+- The active inbox session (address + sid token) persists in localStorage so a reload resumes the same address.
