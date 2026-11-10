@@ -14,6 +14,7 @@ import { Route as ArchiveRouteImport } from './routes/archive'
 import { Route as DraftsRouteImport } from './routes/drafts'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SentRouteImport } from './routes/sent'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as TrashRouteImport } from './routes/trash'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +42,11 @@ const SentRoute = SentRouteImport.update({
   path: '/sent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrashRoute = TrashRouteImport.update({
   id: '/trash',
   path: '/trash',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/drafts': typeof DraftsRoute
   '/saved': typeof SavedRoute
   '/sent': typeof SentRoute
+  '/settings': typeof SettingsRoute
   '/trash': typeof TrashRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/drafts': typeof DraftsRoute
   '/saved': typeof SavedRoute
   '/sent': typeof SentRoute
+  '/settings': typeof SettingsRoute
   '/trash': typeof TrashRoute
 }
 export interface FileRoutesById {
@@ -70,14 +78,24 @@ export interface FileRoutesById {
   '/drafts': typeof DraftsRoute
   '/saved': typeof SavedRoute
   '/sent': typeof SentRoute
+  '/settings': typeof SettingsRoute
   '/trash': typeof TrashRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/archive' | '/drafts' | '/saved' | '/sent' | '/trash'
+  fullPaths:
+    '/' | '/archive' | '/drafts' | '/saved' | '/sent' | '/settings' | '/trash'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/archive' | '/drafts' | '/saved' | '/sent' | '/trash'
-  id: '__root__' | '/' | '/archive' | '/drafts' | '/saved' | '/sent' | '/trash'
+  to: '/' | '/archive' | '/drafts' | '/saved' | '/sent' | '/settings' | '/trash'
+  id:
+    | '__root__'
+    | '/'
+    | '/archive'
+    | '/drafts'
+    | '/saved'
+    | '/sent'
+    | '/settings'
+    | '/trash'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -86,6 +104,7 @@ export interface RootRouteChildren {
   DraftsRoute: typeof DraftsRoute
   SavedRoute: typeof SavedRoute
   SentRoute: typeof SentRoute
+  SettingsRoute: typeof SettingsRoute
   TrashRoute: typeof TrashRoute
 }
 
@@ -126,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trash': {
       id: '/trash'
       path: '/trash'
@@ -142,6 +168,7 @@ const rootRouteChildren: RootRouteChildren = {
   DraftsRoute: DraftsRoute,
   SavedRoute: SavedRoute,
   SentRoute: SentRoute,
+  SettingsRoute: SettingsRoute,
   TrashRoute: TrashRoute,
 }
 export const routeTree = rootRouteImport
