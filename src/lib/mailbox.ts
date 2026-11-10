@@ -14,8 +14,10 @@ export interface StoredMessage {
   /** Temporary address the message was received on (remote mail and internal deliveries). */
   address?: string;
   folder: Folder;
-  /** Folder to return to when restored from trash. */
+  /** Folder to return to when restored from Trash or Archive. */
   prevFolder?: Folder;
+  /** True for the Sent copy of a message written in the app. */
+  outgoing?: boolean;
   from: string;
   to: string;
   subject: string;
@@ -44,18 +46,23 @@ export const remoteKey = (address: string, remoteId: string) => `gm:${address}:$
 
 // ---------- folder moves ----------
 
+/** Where a message naturally lives: Sent for outgoing copies, otherwise the inbox. */
+export const homeFolder = (m: StoredMessage): Folder => (m.outgoing ? "sent" : "inbox");
+
 export function moveTo(m: StoredMessage, folder: Folder): StoredMessage {
   if (m.folder === folder) return m;
   return {
     ...m,
     folder,
-    prevFolder: folder === "trash" ? m.folder : undefined,
+    prevFolder: folder === "trash" || folder === "archive" ? m.folder : undefined,
   };
 }
 
+/** Bring a message out of Trash or Archive back to where it came from. */
 export function restore(m: StoredMessage): StoredMessage {
-  if (m.folder !== "trash") return m;
-  return { ...m, folder: m.prevFolder ?? "inbox", prevFolder: undefined };
+  if (m.folder !== "trash" && m.folder !== "archive") return m;
+  const target = m.prevFolder && m.prevFolder !== m.folder ? m.prevFolder : homeFolder(m);
+  return { ...m, folder: target === "trash" ? homeFolder(m) : target, prevFolder: undefined };
 }
 
 // ---------- views ----------

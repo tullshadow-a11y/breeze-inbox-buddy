@@ -81,10 +81,8 @@ export function MessageReader({ message: m, onBack, onClose }: MessageReaderProp
               {m.folder === "archive" ? (
                 <ToolbarButton
                   icon={<ArchiveRestore />}
-                  label={m.source === "remote" || m.address ? "Move to inbox" : "Unarchive"}
-                  onClick={() =>
-                    act(() => mailbox.move(m.id, m.source === "local" && !m.address ? "sent" : "inbox"), "Moved out of Archive")
-                  }
+                  label={m.outgoing ? "Move to Sent" : "Move to inbox"}
+                  onClick={() => act(() => mailbox.restore(m.id), "Moved out of Archive")}
                 />
               ) : (
                 <ToolbarButton

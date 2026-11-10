@@ -172,7 +172,7 @@ export const mailbox = {
       encrypted: input.encrypted,
       hasAttachments: false,
     };
-    const sent: StoredMessage = { ...base, id: newId(), folder: "sent", timestamp: now, read: true };
+    const sent: StoredMessage = { ...base, id: newId(), folder: "sent", outgoing: true, timestamp: now, read: true };
     mailboxStore.set((s) => ({ ...s, messages: [sent, ...s.messages] }));
     return { sent, deliver: () => mailbox.deliver({ ...base, address: input.deliverTo ?? undefined }) };
   },
