@@ -22,6 +22,7 @@ interface AddressPanelProps {
   busy: null | "generate" | "delete";
   refreshing: boolean;
   nextCheckIn: number | null;
+  autoRefresh: boolean;
   onRefresh: () => void;
   onGenerate: () => void;
   onDelete: () => void;
@@ -33,6 +34,7 @@ export function AddressPanel({
   busy,
   refreshing,
   nextCheckIn,
+  autoRefresh,
   onRefresh,
   onGenerate,
   onDelete,
@@ -66,7 +68,11 @@ export function AddressPanel({
               <span className="relative inline-flex size-2 rounded-full bg-success" />
             </span>
             <span className="font-mono tabular-nums">
-              {refreshing ? "Checking…" : nextCheckIn !== null ? `Next check ${nextCheckIn}s` : "Live"}
+              {refreshing ? "Checking…" : !autoRefresh
+                  ? "Auto-refresh off"
+                  : nextCheckIn !== null
+                    ? `Next check ${nextCheckIn}s`
+                    : "Live"}
             </span>
           </div>
         )}
@@ -133,7 +139,7 @@ export function AddressPanel({
               <AlertDialogTitle>Delete this address?</AlertDialogTitle>
               <AlertDialogDescription>
                 <span className="font-mono text-foreground">{address}</span> and every message in
-                its inbox will be discarded. This can't be undone.
+                its inbox will be discarded. Saved messages are kept. This can't be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
