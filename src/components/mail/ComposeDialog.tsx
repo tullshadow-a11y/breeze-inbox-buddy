@@ -78,17 +78,45 @@ function ComposeForm({ draftId: initialDraftId, onDone }: { draftId?: string; on
   const signatureOnly = settings.signature && body.trim() === `—\n${settings.signature}`.trim();
   const hasContent = !!subject.trim() || (!!body.trim() && !signatureOnly);
 
+  const latest = useRef({ to, subject, body, encrypt, from, hasContent });
+  latest.current = { to, subject, body, encrypt, from, hasContent };
+  const handled = useRef(false);
+
+  const flushDraft = useCallback(() => {
+    const v = latest.current;
+    if (!v.hasContent) return draftRef.current;
+    const id = mailbox.saveDraft({
+      id: draftRef.current,
+      to: v.to,
+      subject: v.subject,
+      body: v.body,
+      encrypted: v.encrypt,
+      from: v.from,
+    });
+    draftRef.current = id;
+    return id;
+  }, []);
+
   // Auto-save to Drafts while typing.
   useEffect(() => {
     if (!hasContent) return;
     setSaved("saving");
     const t = setTimeout(() => {
-      const id = mailbox.saveDraft({ id: draftRef.current, to, subject, body, encrypted: encrypt, from });
-      setDraftId(id);
+      setDraftId(flushDraft());
       setSaved("saved");
     }, 600);
     return () => clearTimeout(t);
-  }, [subject, body, encrypt, hasContent, to, from]);
+  }, [subject, body, encrypt, hasContent, flushDraft]);
+
+  // Closing the window keeps whatever was typed as a draft.
+  useEffect(
+    () => () => {
+      if (handled.current || !latest.current.hasContent) return;
+      flushDraft();
+      toast("Saved to Drafts");
+    },
+    [flushDraft],
+  );
 
   const passError =
     encrypt && pass.length > 0 && pass.length < 6
@@ -112,6 +140,7 @@ function ComposeForm({ draftId: initialDraftId, onDone }: { draftId?: string; on
         encrypted: encrypt,
         deliverTo: address || null,
       });
+      handled.current = true;
       if (draftRef.current) mailbox.destroy([draftRef.current]);
       toast.success(encrypt ? "Encrypted message sent" : "Message sent");
       setTimeout(() => notifyArrival([deliver()]), DELIVERY_DELAY_MS);
@@ -123,6 +152,7 @@ function ComposeForm({ draftId: initialDraftId, onDone }: { draftId?: string; on
   };
 
   const discard = () => {
+    handled.current = true;
     if (draftRef.current) mailbox.destroy([draftRef.current]);
     toast("Draft discarded");
     onDone();
@@ -131,9 +161,6 @@ function ComposeForm({ draftId: initialDraftId, onDone }: { draftId?: string; on
   return (
     <DialogContent
       className="glass max-h-[92svh] gap-0 overflow-y-auto rounded-3xl border-glass-border bg-popover/85 p-0 sm:max-w-2xl"
-      onCloseAutoFocus={() => {
-        if (hasContent && !sending) toast("Saved to Drafts");
-      }}
     >
       <DialogHeader className="border-b border-border px-6 py-5 text-left">
         <DialogTitle className="flex items-center gap-2 text-lg">
