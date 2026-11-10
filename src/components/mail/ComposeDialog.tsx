@@ -81,6 +81,11 @@ function ComposeForm({ draftId: initialDraftId, onDone }: { draftId?: string; on
   const latest = useRef({ to, subject, body, encrypt, from, hasContent });
   latest.current = { to, subject, body, encrypt, from, hasContent };
   const handled = useRef(false);
+  const initial = useRef({ subject, body, encrypt });
+  const changed =
+    subject !== initial.current.subject || body !== initial.current.body || encrypt !== initial.current.encrypt;
+  const changedRef = useRef(changed);
+  changedRef.current = changed;
 
   const flushDraft = useCallback(() => {
     const v = latest.current;
@@ -99,7 +104,7 @@ function ComposeForm({ draftId: initialDraftId, onDone }: { draftId?: string; on
 
   // Auto-save to Drafts while typing.
   useEffect(() => {
-    if (!hasContent) return;
+    if (!hasContent || !changedRef.current) return;
     setSaved("saving");
     const t = setTimeout(() => {
       setDraftId(flushDraft());
@@ -111,7 +116,7 @@ function ComposeForm({ draftId: initialDraftId, onDone }: { draftId?: string; on
   // Closing the window keeps whatever was typed as a draft.
   useEffect(
     () => () => {
-      if (handled.current || !latest.current.hasContent) return;
+      if (handled.current || !changedRef.current || !latest.current.hasContent) return;
       flushDraft();
       toast("Saved to Drafts");
     },
