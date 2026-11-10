@@ -20,7 +20,8 @@ import {
 import { useHydrated } from "@tanstack/react-router";
 import { queryMailbox, type QuickFilter, type SortOrder, type ViewId } from "@/lib/mailbox";
 import { cn } from "@/lib/utils";
-import { mailbox, useMailbox } from "@/stores/mailbox";
+import { useMailbox } from "@/stores/mailbox";
+import { useMailSession } from "@/components/providers/MailSessionProvider";
 import { useCompose } from "./ComposeDialog";
 import { EmptyState } from "./EmptyState";
 import { MessageList } from "./MessageList";
@@ -108,7 +109,7 @@ export function MailboxView({ view, title, icon, empty, notice, loading }: Mailb
               ))}
             </SelectContent>
           </Select>
-          {view === "trash" && total > 0 && <EmptyTrashButton count={total} />}
+          {view === "trash" && total > 0 && <EmptyTrashButton />}
         </div>
         <div className="scrollbar-thin -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-0.5" role="group" aria-label="Filter">
           {FILTERS.map((f) => (
@@ -211,7 +212,11 @@ export function MailboxView({ view, title, icon, empty, notice, loading }: Mailb
   );
 }
 
-function EmptyTrashButton({ count }: { count: number }) {
+function EmptyTrashButton() {
+  const { destroyMessages } = useMailSession();
+  const { messages } = useMailbox();
+  const ids = messages.filter((m) => m.folder === "trash").map((m) => m.id);
+  const count = ids.length;
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -231,7 +236,7 @@ function EmptyTrashButton({ count }: { count: number }) {
           <AlertDialogAction
             className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
             onClick={() => {
-              mailbox.emptyTrash();
+              destroyMessages(ids);
               toast.success("Trash emptied");
             }}
           >
