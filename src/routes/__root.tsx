@@ -13,12 +13,17 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
+import { AppShell } from "@/components/layout/AppShell";
+import { ComposeProvider } from "@/components/mail/ComposeDialog";
+import { MailSessionProvider } from "@/components/providers/MailSessionProvider";
+import { THEME_BOOT_SCRIPT } from "@/lib/settings";
+import { useSettings } from "@/stores/settings";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-[70vh] items-center justify-center px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
+        <h1 className="text-gradient text-7xl font-bold">404</h1>
         <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           The page you're looking for doesn't exist or has been moved.
@@ -107,8 +112,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark" data-accent="mint" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
         <HeadContent />
       </head>
       <body>
@@ -124,9 +130,20 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      <Toaster theme="dark" position="bottom-right" />
+      <MailSessionProvider>
+        <ComposeProvider>
+          <AppShell>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </AppShell>
+        </ComposeProvider>
+      </MailSessionProvider>
+      <ThemedToaster />
     </QueryClientProvider>
   );
+}
+
+function ThemedToaster() {
+  const { theme } = useSettings();
+  return <Toaster theme={theme} position="bottom-right" />;
 }

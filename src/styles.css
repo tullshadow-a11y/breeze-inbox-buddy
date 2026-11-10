@@ -73,9 +73,13 @@
   --card-foreground: oklch(0.96 0.01 220);
   --popover: oklch(0.19 0.025 240);
   --popover-foreground: oklch(0.96 0.01 220);
-  --primary: oklch(0.86 0.15 172);
-  --primary-foreground: oklch(0.18 0.04 190);
-  --primary-glow: oklch(0.78 0.14 215);
+  /* Accent hue is swappable from Settings (data-accent on <html>). */
+  --accent-h: 172;
+  --p-l: 0.86;
+  --p-c: 0.15;
+  --primary: oklch(var(--p-l) var(--p-c) var(--accent-h));
+  --primary-foreground: oklch(0.18 0.04 var(--accent-h));
+  --primary-glow: oklch(calc(var(--p-l) - 0.08) 0.14 calc(var(--accent-h) + 43));
   --secondary: oklch(1 0 0 / 0.07);
   --secondary-foreground: oklch(0.96 0.01 220);
   --muted: oklch(1 0 0 / 0.05);
@@ -87,7 +91,8 @@
   --success: oklch(0.82 0.17 155);
   --border: oklch(1 0 0 / 0.09);
   --input: oklch(1 0 0 / 0.12);
-  --ring: oklch(0.86 0.15 172 / 0.6);
+  --ring: oklch(var(--p-l) var(--p-c) var(--accent-h) / 0.6);
+  --grid-line: oklch(1 0 0 / 0.035);
 
   --glass: oklch(1 0 0 / 0.045);
   --glass-strong: oklch(1 0 0 / 0.075);
@@ -98,19 +103,59 @@
   --shadow-glass: 0 1px 0 0 oklch(1 0 0 / 0.08) inset, 0 30px 60px -30px oklch(0 0 0 / 0.7);
   --shadow-glow: 0 10px 40px -10px color-mix(in oklab, var(--primary) 55%, transparent);
 
-  --chart-1: oklch(0.86 0.15 172);
-  --chart-2: oklch(0.78 0.14 215);
+  --chart-1: var(--primary);
+  --chart-2: var(--primary-glow);
   --chart-3: oklch(0.7 0.12 250);
   --chart-4: oklch(0.82 0.17 155);
   --chart-5: oklch(0.68 0.19 20);
-  --sidebar: oklch(0.17 0.02 240);
+  --sidebar: oklch(0.16 0.02 240 / 0.55);
   --sidebar-foreground: oklch(0.96 0.01 220);
-  --sidebar-primary: oklch(0.86 0.15 172);
-  --sidebar-primary-foreground: oklch(0.18 0.04 190);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: oklch(1 0 0 / 0.08);
   --sidebar-accent-foreground: oklch(0.96 0.01 220);
   --sidebar-border: oklch(1 0 0 / 0.09);
-  --sidebar-ring: oklch(0.86 0.15 172 / 0.6);
+  --sidebar-ring: var(--ring);
+}
+
+:root[data-accent="cyan"] { --accent-h: 215; }
+:root[data-accent="violet"] { --accent-h: 290; --p-c: 0.13; }
+:root[data-accent="amber"] { --accent-h: 75; }
+:root[data-accent="rose"] { --accent-h: 10; --p-c: 0.13; }
+
+/* Light glass theme */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --p-l: 0.6;
+  --p-c: 0.14;
+  --primary-foreground: oklch(0.99 0.01 var(--accent-h));
+  --background: oklch(0.965 0.012 230);
+  --foreground: oklch(0.21 0.03 245);
+  --card: oklch(1 0 0 / 0.75);
+  --card-foreground: oklch(0.21 0.03 245);
+  --popover: oklch(0.99 0.005 230);
+  --popover-foreground: oklch(0.21 0.03 245);
+  --secondary: oklch(0.21 0.03 245 / 0.06);
+  --secondary-foreground: oklch(0.21 0.03 245);
+  --muted: oklch(0.21 0.03 245 / 0.045);
+  --muted-foreground: oklch(0.48 0.03 240);
+  --accent: oklch(0.21 0.03 245 / 0.07);
+  --accent-foreground: oklch(0.18 0.03 245);
+  --destructive: oklch(0.57 0.2 20);
+  --success: oklch(0.6 0.16 155);
+  --border: oklch(0.21 0.03 245 / 0.1);
+  --input: oklch(0.21 0.03 245 / 0.15);
+  --glass: oklch(1 0 0 / 0.55);
+  --glass-strong: oklch(1 0 0 / 0.75);
+  --glass-border: oklch(0.21 0.03 245 / 0.09);
+  --grid-line: oklch(0.21 0.03 245 / 0.045);
+  --gradient-text: linear-gradient(120deg, oklch(0.24 0.04 245) 10%, var(--primary) 55%, var(--primary-glow));
+  --shadow-glass: 0 1px 0 0 oklch(1 0 0 / 0.8) inset, 0 30px 60px -30px oklch(0.3 0.05 240 / 0.25);
+  --sidebar: oklch(1 0 0 / 0.55);
+  --sidebar-foreground: oklch(0.21 0.03 245);
+  --sidebar-accent: oklch(0.21 0.03 245 / 0.07);
+  --sidebar-accent-foreground: oklch(0.18 0.03 245);
+  --sidebar-border: oklch(0.21 0.03 245 / 0.09);
 }
 
 @keyframes ping-slow {
@@ -169,15 +214,15 @@
 
 @utility grid-overlay {
   background-image:
-    linear-gradient(to right, oklch(1 0 0 / 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, oklch(1 0 0 / 0.035) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 56px 56px;
   mask-image: radial-gradient(ellipse at 50% 0%, black 30%, transparent 75%);
 }
 
 @utility scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: oklch(1 0 0 / 0.15) transparent;
+  scrollbar-color: var(--input) transparent;
 }
 
 @layer base {
@@ -187,6 +232,10 @@
 
   html {
     color-scheme: dark;
+  }
+
+  html[data-theme="light"] {
+    color-scheme: light;
   }
 
   body {
