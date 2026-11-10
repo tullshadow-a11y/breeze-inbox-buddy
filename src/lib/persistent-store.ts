@@ -10,6 +10,7 @@ export interface PersistentStore<T> {
   subscribe: (listener: () => void) => () => void;
   reset: () => void;
   key: string;
+  initial: T;
 }
 
 export function createPersistentStore<T>(
@@ -49,6 +50,7 @@ export function createPersistentStore<T>(
 
   return {
     key,
+    initial,
     get: load,
     set,
     reset: () => {
@@ -76,11 +78,7 @@ export function createPersistentStore<T>(
   };
 }
 
-export function useStore<T, S = T>(store: PersistentStore<T>, select?: (s: T) => S, serverValue?: T): S {
-  const pick = select ?? ((s: T) => s as unknown as S);
-  return useSyncExternalStore(
-    store.subscribe,
-    () => pick(store.get()),
-    () => pick(serverValue ?? (undefined as unknown as T) ?? store.get()),
-  );
+/** Subscribe to the whole store value; derive slices with useMemo in the caller. */
+export function useStore<T>(store: PersistentStore<T>): T {
+  return useSyncExternalStore(store.subscribe, store.get, () => store.initial);
 }
